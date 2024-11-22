@@ -1,4 +1,4 @@
-package EffectiveMobile
+package handler
 
 type Song struct {
 	ID          int    `json:"id" db:"id"`

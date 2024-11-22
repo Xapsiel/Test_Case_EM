@@ -1,4 +1,4 @@
-package EffectiveMobile
+package models
 
 import (
 	"context"
