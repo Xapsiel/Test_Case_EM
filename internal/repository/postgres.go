@@ -29,6 +29,8 @@ func NewPostgresDB(cfg Config) (*sqlx.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect to initial database: %w", err)
 	}
+	_, _ = initialDB.Exec("CREATE DATABASE library")
+
 	defer initialDB.Close()
 	mainConnStr := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password='%s' sslmode=%s", cfg.Host, cfg.Port, cfg.Username, cfg.DBName, cfg.Password, cfg.SSLMode)
 	db, err := sqlx.Open("postgres", mainConnStr)

@@ -17,24 +17,25 @@ func NewSongService(repo repository.Song) *SongService {
 func (s *SongService) GetSongs(filter EffectiveMobile.Filter) ([]EffectiveMobile.Song, error) {
 	return s.repo.GetSongs(filter)
 }
-func (s *SongService) GetSongVerse(song string, group string, VerseNumber int) (string, error) {
-	text, err := s.repo.GetSongVerse(song, group)
+func (s *SongService) GetSongVerse(song EffectiveMobile.Song, VerseNumber int) (string, int, error) {
+	text, id, err := s.repo.GetSongVerse(song)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
+	VerseNumber -= 1
 	textParts := strings.Split(text, "\n\n")
-	if len(textParts)-1 < VerseNumber {
-		return textParts[len(textParts)-1], nil // возвращаем последний элемент
+	if len(textParts)-1 < VerseNumber || VerseNumber < 0 {
+		return textParts[len(textParts)-1], id, nil // возвращаем последний элемент
 	}
-	return textParts[VerseNumber], nil
+	return textParts[VerseNumber], id, nil
 }
-func (s *SongService) DeleteSong(song, group string) (bool, error) {
-	return s.repo.DeleteSong(song, group)
+func (s *SongService) DeleteSong(song EffectiveMobile.Song) (bool, error) {
+	return s.repo.DeleteSong(song)
 }
-func (s *SongService) UpdateSong(song EffectiveMobile.Song) (bool, error) {
+func (s *SongService) UpdateSong(song EffectiveMobile.Song) (bool, EffectiveMobile.Song, error) {
 	return s.repo.UpdateSong(song)
 }
-func (s *SongService) Add(song EffectiveMobile.Song) (int, error) {
+func (s *SongService) Add(song EffectiveMobile.Song) (bool, int, error) {
 	return s.repo.Add(song)
 }
 

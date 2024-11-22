@@ -2,15 +2,22 @@ package service
 
 import (
 	"github.com/Xapsiel/EffectiveMobile"
+	"github.com/Xapsiel/EffectiveMobile/internal/repository"
 )
 
 type Song interface {
-	GetSongs(EffectiveMobile.Filter) ([]EffectiveMobile.Song, error)
-	GetSongVerse(string, string, int) (string, error)
-	DeleteSong(string, string) (bool, error)
-	UpdateSong(EffectiveMobile.Song) (bool, error)
-	Add(EffectiveMobile.Song) (int, error)
+	GetSongs(filter EffectiveMobile.Filter) ([]EffectiveMobile.Song, error)
+	GetSongVerse(song EffectiveMobile.Song, verse int) (string, int, error)
+	DeleteSong(song EffectiveMobile.Song) (bool, error)
+	UpdateSong(song EffectiveMobile.Song) (bool, EffectiveMobile.Song, error)
+	Add(song EffectiveMobile.Song) (bool, int, error)
 }
 type Service struct {
 	Song
+}
+
+func NewService(repo *repository.Repository) *Service {
+	return &Service{
+		Song: NewSongService(repo.Song),
+	}
 }

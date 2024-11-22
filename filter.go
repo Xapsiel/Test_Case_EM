@@ -1,10 +1,10 @@
 package EffectiveMobile
 
-import "time"
-
 type Filter struct {
+	ID    int
 	Song  string
 	Group string
-	Since time.Time
-	To    time.Time
+	Since string
+	To    string
+	Page  int
 }
