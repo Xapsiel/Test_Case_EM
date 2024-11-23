@@ -34,6 +34,12 @@ CREATE TABLE songs (
 );
 */
 func (s *SongPostgres) GetSongs(filter models.Filter) ([]models.Song, error) {
+	var totalRecords int
+	err := s.db.QueryRow("SELECT COUNT(*) FROM songs").Scan(&totalRecords)
+	if err != nil {
+		return nil, err
+	}
+
 	var songs []models.Song
 	// Стартовый запрос
 	query := "SELECT id,group_name, song_name, release_date, link, text  FROM songs WHERE 1=1"
@@ -61,7 +67,6 @@ func (s *SongPostgres) GetSongs(filter models.Filter) ([]models.Song, error) {
 		argCount++
 	}
 
-	// Проверяем, есть ли значение для поля EndDate (time.Time)
 	if filter.To != "" {
 		query += " AND release_date <= $" + fmt.Sprintf("%d", argCount)
 		args = append(args, filter.To)
@@ -76,7 +81,7 @@ func (s *SongPostgres) GetSongs(filter models.Filter) ([]models.Song, error) {
 	args = append(args, pageContain)
 	args = append(args, ((filter.Page - 1) * pageContain))
 	// Выполняем запрос
-	err := s.db.Select(&songs, query, args...)
+	err = s.db.Select(&songs, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("Ошибка получения списка песен")
 	}

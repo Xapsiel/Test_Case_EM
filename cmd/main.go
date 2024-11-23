@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/Xapsiel/EffectiveMobile/internal/handler"
 	"github.com/Xapsiel/EffectiveMobile/internal/models"
 	"github.com/Xapsiel/EffectiveMobile/internal/repository"
@@ -18,10 +19,11 @@ import (
 //	@BasePath		/
 
 func main() {
-	logService := log.NewLogService(os.Stdout, "debug")
 	if err := godotenv.Load(); err != nil {
-		log.Logger.Info(log.MakeLog("Ошибка загрузки .env", err))
+		fmt.Errorf(log.MakeLog("Ошибка загрузки .env", err))
 	}
+	logService := log.NewLogService(os.Stdout, os.Getenv("LOG_MODE"))
+
 	log.Logger.Debug(log.MakeLog("Загрузки переменных окружения", nil))
 	db, err := repository.NewPostgresDB(repository.Config{
 		Host:     os.Getenv("DB_HOST"),
