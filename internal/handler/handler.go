@@ -1,8 +1,11 @@
 package handler
 
 import (
+	_ "github.com/Xapsiel/EffectiveMobile/docs"
 	"github.com/Xapsiel/EffectiveMobile/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -15,11 +18,12 @@ func NewHandler(service *service.Service) *Handler {
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
-
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	router.GET("/info", h.GetSongs)
-	router.POST("/info", h.AddSong)
+	router.POST("/songs", h.AddSong)
 	router.GET("/info/verse", h.GetSongVerse)
-	router.DELETE("/info", h.DeleteSong)
-	router.PUT("/info", h.UpdateSong)
+	router.DELETE("/songs", h.DeleteSong)
+	router.PUT("/songs", h.UpdateSong)
+
 	return router
 }

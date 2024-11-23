@@ -17,7 +17,7 @@ const docTemplate = `{
     "paths": {
         "/info": {
             "get": {
-                "description": "Получение списка песен из базы данных",
+                "description": "Получение списка песен из базы данных с фильтрацией по параметрам",
                 "consumes": [
                     "application/json"
                 ],
@@ -31,17 +31,17 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "default": "Supermassive Black Hole",
                         "description": "Название песни",
                         "name": "song",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "string",
+                        "default": "Muse",
                         "description": "Группа",
                         "name": "group",
-                        "in": "query",
-                        "required": true
+                        "in": "query"
                     },
                     {
                         "type": "integer",
@@ -72,26 +72,90 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/models.Song"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.errorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.errorResponse"
                         }
                     }
                 }
-            },
+            }
+        },
+        "/info/verse": {
+            "get": {
+                "description": "Получение текста конкретного куплета песни",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "songs"
+                ],
+                "summary": "Получение текста куплета песни",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "default": "Supermassive Black Hole",
+                        "description": "Название песни",
+                        "name": "song",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "default": "Muse",
+                        "description": "Группа",
+                        "name": "group",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "ID песни",
+                        "name": "id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "example": 1,
+                        "description": "Номер куплета",
+                        "name": "verse",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.resultResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.errorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/songs": {
             "put": {
                 "description": "Обновление информации о песне по предоставленным данным",
                 "consumes": [
@@ -111,7 +175,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/EffectiveMobile.Song"
+                            "$ref": "#/definitions/models.Song"
                         }
                     }
                 ],
@@ -119,22 +183,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.resultResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.errorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.errorResponse"
                         }
                     }
                 }
@@ -158,7 +219,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/EffectiveMobile.Song"
+                            "$ref": "#/definitions/models.Song"
                         }
                     }
                 ],
@@ -166,22 +227,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.resultResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.errorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.errorResponse"
                         }
                     }
                 }
@@ -200,12 +258,12 @@ const docTemplate = `{
                 "summary": "Удаление песни",
                 "parameters": [
                     {
-                        "description": "Данные песни для удаления. Передайте либо ID, либо название и группу песни",
+                        "description": "Данные песни для удаления",
                         "name": "song",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/EffectiveMobile.Song"
+                            "$ref": "#/definitions/models.Song"
                         }
                     }
                 ],
@@ -213,87 +271,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.resultResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.errorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
-        "/info/verse": {
-            "get": {
-                "description": "Получение текста конкретного куплета песни.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "songs"
-                ],
-                "summary": "Получение текста песни",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Название песни",
-                        "name": "song",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Группа",
-                        "name": "group",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID песни",
-                        "name": "id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Номер куплета. Передайте с ним либо ID, либо название и группу песни",
-                        "name": "verse",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
+                            "$ref": "#/definitions/handler.errorResponse"
                         }
                     }
                 }
@@ -301,26 +291,62 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "EffectiveMobile.Song": {
+        "handler.errorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "error description"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "fail"
+                }
+            }
+        },
+        "handler.resultResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
+                },
+                "text": {
+                    "type": "string",
+                    "example": "description"
+                }
+            }
+        },
+        "models.Song": {
             "type": "object",
             "properties": {
                 "group": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Muse"
                 },
                 "id": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "link": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "https://www.youtube.com/watch?v=Xsp3_a-PMTw"
                 },
                 "release_date": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2006-07-19"
                 },
                 "song_name": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Supermassive Black Hole"
                 },
                 "text": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Ooh baby, don't you know I suffer?\nOoh baby, can you hear me moan?"
                 }
             }
         }
@@ -329,12 +355,12 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0",
+	Host:             "localhost:8080",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Songs API",
+	Description:      "This is an API for managing songs.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

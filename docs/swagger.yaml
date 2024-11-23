@@ -1,70 +1,71 @@
+basePath: /
 definitions:
-  EffectiveMobile.Song:
+  handler.errorResponse:
     properties:
-      group:
+      message:
+        example: error description
         type: string
-      id:
-        type: integer
-      link:
-        type: string
-      release_date:
-        type: string
-      song_name:
-        type: string
-      text:
+      status:
+        example: fail
         type: string
     type: object
+  handler.resultResponse:
+    properties:
+      id:
+        example: 1
+        type: integer
+      status:
+        example: success
+        type: string
+      text:
+        example: description
+        type: string
+    type: object
+  models.Song:
+    properties:
+      group:
+        example: Muse
+        type: string
+      id:
+        example: 1
+        type: integer
+      link:
+        example: https://www.youtube.com/watch?v=Xsp3_a-PMTw
+        type: string
+      release_date:
+        example: "2006-07-19"
+        type: string
+      song_name:
+        example: Supermassive Black Hole
+        type: string
+      text:
+        example: |-
+          Ooh baby, don't you know I suffer?
+          Ooh baby, can you hear me moan?
+        type: string
+    type: object
+host: localhost:8080
 info:
   contact: {}
+  description: This is an API for managing songs.
+  title: Songs API
+  version: "1.0"
 paths:
   /info:
-    delete:
-      consumes:
-      - application/json
-      description: Удаление песни по предоставленным данным
-      parameters:
-      - description: Данные песни для удаления. Передайте либо ID, либо название и
-          группу песни
-        in: body
-        name: song
-        required: true
-        schema:
-          $ref: '#/definitions/EffectiveMobile.Song'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Удаление песни
-      tags:
-      - songs
     get:
       consumes:
       - application/json
-      description: Получение списка песен из базы данных
+      description: Получение списка песен из базы данных с фильтрацией по параметрам
       parameters:
-      - description: Название песни
+      - default: Supermassive Black Hole
+        description: Название песни
         in: query
         name: song
-        required: true
         type: string
-      - description: Группа
+      - default: Muse
+        description: Группа
         in: query
         name: group
-        required: true
         type: string
       - description: ID песни
         in: query
@@ -88,19 +89,90 @@ paths:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/models.Song'
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.errorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.errorResponse'
       summary: Получение списка песен
+      tags:
+      - songs
+  /info/verse:
+    get:
+      consumes:
+      - application/json
+      description: Получение текста конкретного куплета песни
+      parameters:
+      - default: Supermassive Black Hole
+        description: Название песни
+        in: query
+        name: song
+        type: string
+      - default: Muse
+        description: Группа
+        in: query
+        name: group
+        type: string
+      - default: 1
+        description: ID песни
+        in: query
+        name: id
+        type: integer
+      - description: Номер куплета
+        example: 1
+        in: query
+        name: verse
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.resultResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Получение текста куплета песни
+      tags:
+      - songs
+  /songs:
+    delete:
+      consumes:
+      - application/json
+      description: Удаление песни по предоставленным данным
+      parameters:
+      - description: Данные песни для удаления
+        in: body
+        name: song
+        required: true
+        schema:
+          $ref: '#/definitions/models.Song'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.resultResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Удаление песни
       tags:
       - songs
     post:
@@ -113,25 +185,22 @@ paths:
         name: song
         required: true
         schema:
-          $ref: '#/definitions/EffectiveMobile.Song'
+          $ref: '#/definitions/models.Song'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.resultResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.errorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.errorResponse'
       summary: Добавление новой песни
       tags:
       - songs
@@ -145,71 +214,23 @@ paths:
         name: song
         required: true
         schema:
-          $ref: '#/definitions/EffectiveMobile.Song'
+          $ref: '#/definitions/models.Song'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.resultResponse'
         "400":
           description: Bad Request
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.errorResponse'
         "500":
           description: Internal Server Error
           schema:
-            additionalProperties: true
-            type: object
+            $ref: '#/definitions/handler.errorResponse'
       summary: Обновление информации о песне
-      tags:
-      - songs
-  /info/verse:
-    get:
-      consumes:
-      - application/json
-      description: Получение текста конкретного куплета песни.
-      parameters:
-      - description: Название песни
-        in: query
-        name: song
-        type: string
-      - description: Группа
-        in: query
-        name: group
-        type: string
-      - description: ID песни
-        in: query
-        name: id
-        type: integer
-      - description: Номер куплета. Передайте с ним либо ID, либо название и группу
-          песни
-        in: query
-        name: verse
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Получение текста песни
       tags:
       - songs
 swagger: "2.0"

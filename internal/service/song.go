@@ -1,7 +1,7 @@
 package service
 
 import (
-	"github.com/Xapsiel/EffectiveMobile"
+	"github.com/Xapsiel/EffectiveMobile/internal/models"
 	"github.com/Xapsiel/EffectiveMobile/internal/repository"
 	"strings"
 )
@@ -14,10 +14,10 @@ func NewSongService(repo repository.Song) *SongService {
 	return &SongService{repo: repo}
 }
 
-func (s *SongService) GetSongs(filter EffectiveMobile.Filter) ([]EffectiveMobile.Song, error) {
+func (s *SongService) GetSongs(filter models.Filter) ([]models.Song, error) {
 	return s.repo.GetSongs(filter)
 }
-func (s *SongService) GetSongVerse(song EffectiveMobile.Song, VerseNumber int) (string, int, error) {
+func (s *SongService) GetSongVerse(song models.Song, VerseNumber int) (string, int, error) {
 	text, id, err := s.repo.GetSongVerse(song)
 	if err != nil {
 		return "", 0, err
@@ -29,13 +29,13 @@ func (s *SongService) GetSongVerse(song EffectiveMobile.Song, VerseNumber int) (
 	}
 	return textParts[VerseNumber], id, nil
 }
-func (s *SongService) DeleteSong(song EffectiveMobile.Song) (bool, error) {
+func (s *SongService) DeleteSong(song models.Song) (bool, error) {
 	return s.repo.DeleteSong(song)
 }
-func (s *SongService) UpdateSong(song EffectiveMobile.Song) (bool, EffectiveMobile.Song, error) {
+func (s *SongService) UpdateSong(song models.Song) (bool, models.Song, error) {
 	return s.repo.UpdateSong(song)
 }
-func (s *SongService) Add(song EffectiveMobile.Song) (bool, int, error) {
+func (s *SongService) Add(song models.Song) (bool, int, error) {
 	return s.repo.Add(song)
 }
 

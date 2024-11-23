@@ -2,7 +2,8 @@ package repository
 
 import (
 	"fmt"
-	"github.com/Xapsiel/EffectiveMobile"
+	"github.com/Xapsiel/EffectiveMobile/internal/models"
+	. "github.com/Xapsiel/EffectiveMobile/pkg/log"
 	"github.com/jmoiron/sqlx"
 	"time"
 )
@@ -32,11 +33,10 @@ CREATE TABLE songs (
 
 );
 */
-func (s *SongPostgres) GetSongs(filter EffectiveMobile.Filter) ([]EffectiveMobile.Song, error) {
-	var songs []EffectiveMobile.Song
-
+func (s *SongPostgres) GetSongs(filter models.Filter) ([]models.Song, error) {
+	var songs []models.Song
 	// Стартовый запрос
-	query := "SELECT release_date, text, link FROM songs WHERE 1=1"
+	query := "SELECT id,group_name, song_name, release_date, link, text  FROM songs WHERE 1=1"
 
 	// Переменная для хранения параметров запроса
 	var args []interface{}
@@ -55,14 +55,14 @@ func (s *SongPostgres) GetSongs(filter EffectiveMobile.Filter) ([]EffectiveMobil
 		argCount++
 	}
 
-	if filter.Since == "" {
+	if filter.Since != "" {
 		query += " AND release_date >= $" + fmt.Sprintf("%d", argCount)
 		args = append(args, filter.Since)
 		argCount++
 	}
 
 	// Проверяем, есть ли значение для поля EndDate (time.Time)
-	if filter.To == "" {
+	if filter.To != "" {
 		query += " AND release_date <= $" + fmt.Sprintf("%d", argCount)
 		args = append(args, filter.To)
 		argCount++
@@ -80,23 +80,25 @@ func (s *SongPostgres) GetSongs(filter EffectiveMobile.Filter) ([]EffectiveMobil
 	if err != nil {
 		return nil, fmt.Errorf("Ошибка получения списка песен")
 	}
+	Logger.Debug(fmt.Sprintf("Запрос к базе данных:%s с аргументами [%v]", query, args))
 
 	return songs, nil
 }
 
-func (s *SongPostgres) GetSongVerse(song EffectiveMobile.Song) (string, int, error) {
-	var result struct {
-		text string
-		id   int
+func (s *SongPostgres) GetSongVerse(song models.Song) (string, int, error) {
+	var result []struct {
+		Text string `json: "text"`
+		Id   int    `json: "id"`
 	}
-	query := "SELECT text,id FROM songs WHERE "
+	query := "SELECT text, id FROM songs WHERE "
 	if song.SongName != "" {
 		query += "(song_name = $1 AND group_name = $2)"
-		err := s.db.Get(&result, query, song.SongName, song.Group)
+		err := s.db.Select(&result, query, song.SongName, song.Group)
 		if err != nil {
 			return "", 0, fmt.Errorf("Ошибка получения песни")
 		}
-		return result.text, result.id, nil
+		Logger.Debug(fmt.Sprintf("Запрос к базе данных:%s с аргументами [%v]", query, song.SongName, song.Group))
+		return result[0].Text, result[0].Id, nil
 	} else if song.ID != 0 {
 		query += "id  = $1"
 
@@ -104,12 +106,13 @@ func (s *SongPostgres) GetSongVerse(song EffectiveMobile.Song) (string, int, err
 		if err != nil {
 			return "", 0, fmt.Errorf("Ошибка получения песни")
 		}
-		return result.text, result.id, nil
+		Logger.Debug(fmt.Sprintf("Запрос к базе данных:%s с аргументами [%v]", query, song.ID))
+		return result[0].Text, result[0].Id, nil
 	}
 	return "", 0, fmt.Errorf("Песня не найдена")
 
 }
-func (s *SongPostgres) DeleteSong(song EffectiveMobile.Song) (bool, error) {
+func (s *SongPostgres) DeleteSong(song models.Song) (bool, error) {
 	query := "DELETE FROM songs WHERE "
 	if song.SongName != "" {
 		query += "(song_name = $1 AND group_name = $2)"
@@ -129,14 +132,15 @@ func (s *SongPostgres) DeleteSong(song EffectiveMobile.Song) (bool, error) {
 	return false, fmt.Errorf("Песня не найдена")
 
 }
-func (s *SongPostgres) UpdateSong(song EffectiveMobile.Song) (bool, EffectiveMobile.Song, error) {
+func (s *SongPostgres) UpdateSong(song models.Song) (bool, models.Song, error) {
 	query := "UPDATE songs SET id=id "
 	var args []interface{}
 	argCount := 1
 	realesedDate, err := time.Parse(TimeTemplate, song.ReleaseDate)
 
 	if err != nil && song.ReleaseDate != "" {
-		return false, EffectiveMobile.Song{}, fmt.Errorf("Не тот формат даты")
+		Logger.Debug(MakeLog("Ошибка", err))
+		return false, models.Song{}, fmt.Errorf("Не тот формат даты")
 	} else if song.ReleaseDate == "" {
 		realesedDate = time.Time{}
 	}
@@ -167,18 +171,22 @@ func (s *SongPostgres) UpdateSong(song EffectiveMobile.Song) (bool, EffectiveMob
 	}
 	_, err = s.db.Exec(query, args...)
 	if err != nil {
-		return false, EffectiveMobile.Song{}, fmt.Errorf("Ошибка обновления данных о песне")
+		Logger.Debug(MakeLog("Ошибка", err))
+		return false, models.Song{}, fmt.Errorf("Ошибка обновления данных о песне")
 	}
+	Logger.Debug(fmt.Sprintf("Запрос к базе данных:%s с аргументами [%v]", query, args))
 
 	return true, song, nil
 }
-func (s *SongPostgres) Add(song EffectiveMobile.Song) (bool, int, error) {
+func (s *SongPostgres) Add(song models.Song) (bool, int, error) {
 	query := "INSERT INTO songs (group_name, song_name, release_date, text, link) VALUES ($1, $2, $3, $4, $5) RETURNING id"
 	var id int
 	err := s.db.QueryRow(query, song.Group, song.SongName, song.ReleaseDate, song.Text, song.Link).Scan(&id)
 	if err != nil {
+		Logger.Debug(MakeLog("Ошибка", err))
 		return false, 0, fmt.Errorf("Ошибка добавления песни")
 	}
+	Logger.Debug(fmt.Sprintf("Запрос к базе данных:%s с аргументами [%v]", query, []interface{}{song.Group, song.SongName, song.ReleaseDate, song.Text, song.Link}))
 	return true, id, nil
 
 }
