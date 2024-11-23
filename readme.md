@@ -7,9 +7,11 @@
 1. Клонирование репозитория
 
 ```git clone https://github.com/Xapsiel/Test_Case_EM.git```
-3. Переходим в директорию репозитория
+
+2. Переходим в директорию репозитория
 
 ```cd Test_Case_EM```
+
 3. Запуск docker compose файла
 
 ```docker compose up```
