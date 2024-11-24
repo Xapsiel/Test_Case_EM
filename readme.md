@@ -8,12 +8,13 @@
 
 ```git clone https://github.com/Xapsiel/Test_Case_EM.git```
 
-2. Переходим в директорию репозитория
+2. Переходим в директорию репозитория.
 
 ```cd Test_Case_EM```
 
-3. Запуск docker compose файла
+3. Передаем в docker-compose.yaml переменные окружения
+
+4. Запуск docker compose файла
 
 ```docker compose up```
-
 

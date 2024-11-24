@@ -57,12 +57,14 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "example": "2006-07-19",
                         "description": "Дата с",
                         "name": "since",
                         "in": "query"
                     },
                     {
                         "type": "string",
+                        "example": "2006-07-19",
                         "description": "Дата по",
                         "name": "to",
                         "in": "query"
@@ -92,7 +94,7 @@ const docTemplate = `{
         },
         "/info/verse": {
             "get": {
-                "description": "Получение текста конкретного куплета песни",
+                "description": "Получение текста конкретного куплета песни(Обязательные параметры - song,group или id)",
                 "consumes": [
                     "application/json"
                 ],
@@ -157,7 +159,7 @@ const docTemplate = `{
         },
         "/songs": {
             "put": {
-                "description": "Обновление информации о песне по предоставленным данным",
+                "description": "Обновление информации о песне по предоставленным данным(Обязательные параметры- song,group или id)",
                 "consumes": [
                     "application/json"
                 ],
@@ -201,7 +203,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Добавление новой песни в базу данных",
+                "description": "Добавление новой песни в базу данных(Обязательные параметры - song,group)",
                 "consumes": [
                     "application/json"
                 ],
@@ -245,7 +247,7 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "description": "Удаление песни по предоставленным данным",
+                "description": "Удаление песни по предоставленным данным(Обязательные параметры- song,group или id)",
                 "consumes": [
                     "application/json"
                 ],

@@ -92,8 +92,8 @@ func (s *SongPostgres) GetSongs(filter models.Filter) ([]models.Song, error) {
 
 func (s *SongPostgres) GetSongVerse(song models.Song) (string, int, error) {
 	var result []struct {
-		Text string `json: "text"`
-		Id   int    `json: "id"`
+		Text string `json:"text" db:"text"`
+		Id   int    `json:"id" db:"id"`
 	}
 	query := "SELECT text, id FROM songs WHERE "
 	if song.SongName != "" {
@@ -103,15 +103,24 @@ func (s *SongPostgres) GetSongVerse(song models.Song) (string, int, error) {
 			return "", 0, fmt.Errorf("Ошибка получения песни")
 		}
 		Logger.Debug(fmt.Sprintf("Запрос к базе данных:%s с аргументами [%v]", query, song.SongName, song.Group))
+		if len(result) == 0 {
+			return "", 0, fmt.Errorf("Ошибка получения песни")
+
+		}
 		return result[0].Text, result[0].Id, nil
 	} else if song.ID != 0 {
 		query += "id  = $1"
 
-		err := s.db.Get(&result, query, song.ID)
+		err := s.db.Select(&result, query, song.ID)
 		if err != nil {
+
 			return "", 0, fmt.Errorf("Ошибка получения песни")
 		}
 		Logger.Debug(fmt.Sprintf("Запрос к базе данных:%s с аргументами [%v]", query, song.ID))
+		if len(result) == 0 {
+			return "", 0, fmt.Errorf("Ошибка получения песни")
+
+		}
 		return result[0].Text, result[0].Id, nil
 	}
 	return "", 0, fmt.Errorf("Песня не найдена")
@@ -119,7 +128,7 @@ func (s *SongPostgres) GetSongVerse(song models.Song) (string, int, error) {
 }
 func (s *SongPostgres) DeleteSong(song models.Song) (bool, error) {
 	query := "DELETE FROM songs WHERE "
-	if song.SongName != "" {
+	if song.SongName != "" && song.Group != "" {
 		query += "(song_name = $1 AND group_name = $2)"
 		_, err := s.db.Exec(query, song.SongName, song.Group)
 		if err != nil {
@@ -165,7 +174,7 @@ func (s *SongPostgres) UpdateSong(song models.Song) (bool, models.Song, error) {
 		args = append(args, song.ReleaseDate)
 		argCount++
 	}
-	if song.SongName != "" {
+	if song.SongName != "" && song.Group != "" {
 		query += fmt.Sprintf(" WHERE song_name = $%d AND group_name = $%d", argCount, argCount+1)
 		args = append(args, song.SongName)
 		args = append(args, song.Group)
@@ -173,6 +182,8 @@ func (s *SongPostgres) UpdateSong(song models.Song) (bool, models.Song, error) {
 		query += fmt.Sprintf(" WHERE id = $%d", argCount)
 		args = append(args, song.ID)
 
+	} else {
+		return false, models.Song{}, fmt.Errorf("Ошибка обновления данных о песне")
 	}
 	_, err = s.db.Exec(query, args...)
 	if err != nil {

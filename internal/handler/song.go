@@ -19,8 +19,8 @@ import (
 // @Param			group	query		string	false	"Группа"			default(Muse)
 // @Param			id		query		int		false	"ID песни"
 // @Param			page	query		int		false	"Номер страницы"
-// @Param			since	query		string	false	"Дата с"
-// @Param			to		query		string	false	"Дата по"
+// @Param			since	query		string	false	"Дата с" example(2006-07-19)
+// @Param			to		query		string	false	"Дата по" example(2006-07-19)
 // @Success		200		{object}	models.Song
 // @Failure		400		{object}	errorResponse
 // @Failure		500		{object}	errorResponse
@@ -62,7 +62,7 @@ func (h *Handler) GetSongs(c *gin.Context) {
 }
 
 // @Summary		Добавление новой песни
-// @Description	Добавление новой песни в базу данных
+// @Description	Добавление новой песни в базу данных(Обязательные параметры - song,group)
 // @Tags			songs
 // @Accept			json
 // @Produce		json
@@ -92,7 +92,7 @@ func (h *Handler) AddSong(c *gin.Context) {
 }
 
 // @Summary		Получение текста куплета песни
-// @Description	Получение текста конкретного куплета песни
+// @Description	Получение текста конкретного куплета песни(Обязательные параметры - song,group или id)
 // @Tags			songs
 // @Accept			json
 // @Produce		json
@@ -136,7 +136,7 @@ func (h *Handler) GetSongVerse(c *gin.Context) {
 }
 
 // @Summary		Удаление песни
-// @Description	Удаление песни по предоставленным данным
+// @Description	Удаление песни по предоставленным данным(Обязательные параметры- song,group или id)
 // @Tags			songs
 // @Accept			json
 // @Produce		json
@@ -166,7 +166,7 @@ func (h *Handler) DeleteSong(c *gin.Context) {
 }
 
 // @Summary		Обновление информации о песне
-// @Description	Обновление информации о песне по предоставленным данным
+// @Description	Обновление информации о песне по предоставленным данным(Обязательные параметры- song,group или id)
 // @Tags			songs
 // @Accept			json
 // @Produce		json

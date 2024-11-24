@@ -76,10 +76,12 @@ paths:
         name: page
         type: integer
       - description: Дата с
+        example: "2006-07-19"
         in: query
         name: since
         type: string
       - description: Дата по
+        example: "2006-07-19"
         in: query
         name: to
         type: string
@@ -105,7 +107,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: Получение текста конкретного куплета песни
+      description: Получение текста конкретного куплета песни(Обязательные параметры
+        - song,group или id)
       parameters:
       - default: Supermassive Black Hole
         description: Название песни
@@ -149,7 +152,8 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Удаление песни по предоставленным данным
+      description: Удаление песни по предоставленным данным(Обязательные параметры-
+        song,group или id)
       parameters:
       - description: Данные песни для удаления
         in: body
@@ -178,7 +182,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: Добавление новой песни в базу данных
+      description: Добавление новой песни в базу данных(Обязательные параметры - song,group)
       parameters:
       - description: Данные песни
         in: body
@@ -207,7 +211,8 @@ paths:
     put:
       consumes:
       - application/json
-      description: Обновление информации о песне по предоставленным данным
+      description: Обновление информации о песне по предоставленным данным(Обязательные
+        параметры- song,group или id)
       parameters:
       - description: Данные песни для обновления
         in: body
